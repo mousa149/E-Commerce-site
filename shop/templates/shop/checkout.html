@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Review Order</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap and jQuery -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row my-5">
+        <div class="col-md-12">
+            <h1>Review your order</h1>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row my-5">
+        <div class="col-md-12">
+            <h4>Items in your cart</h4>
+            <ul class="list-group" id="item_list"></ul>
+        </div>
+    </div>
+
+    <div class="row my-5">
+        <div class="col-md-12">
+            <h1>Enter shipping details</h1>
+            <hr>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" id="items" name="items">
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Name</label>
+                        <input name="name" type="text" class="form-control" placeholder="John">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Email</label>
+                        <input name="email" type="email" class="form-control" placeholder="john@example.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input name="address" type="text" class="form-control" placeholder="1234 Main St">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>City</label>
+                        <input name="city" type="text" class="form-control">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>State</label>
+                        <input name="state" type="text" class="form-control">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label>Zip</label>
+                        <input name="zipcode" type="text" class="form-control">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label>Total</label>
+                        <input readonly type="text" class="form-control" id="total" name="total">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-warning">Place Order</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+if (localStorage.getItem('cart') == null) {
+    var cart = {};
+} else {
+    cart = JSON.parse(localStorage.getItem('cart'));
+}
+
+let total = 0;
+
+for (let item in cart) {
+    let quantity = cart[item][0];
+    let name = cart[item][1];
+    let price = cart[item][2];
+
+    let itemTotal = price * quantity;
+    total += itemTotal;
+
+    let itemString = `<li class="list-group-item d-flex justify-content-between align-items-center">
+        ${quantity} x ${name}
+        <span class="badge badge-warning badge-pill">$${itemTotal.toFixed(2)}</span>
+    </li>`;
+
+    $('#item_list').append(itemString);
+}
+
+let totalPrice = `<li class="list-group-item d-flex justify-content-between align-items-center font-weight-bold">
+    Total:
+    $${total.toFixed(2)}
+</li>`;
+
+$('#item_list').append(totalPrice);
+$('#total').val(total.toFixed(2));
+$('#items').val(JSON.stringify(cart));
+</script>
+</body>
+</html>
